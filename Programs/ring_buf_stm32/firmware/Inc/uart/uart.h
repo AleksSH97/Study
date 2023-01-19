@@ -30,11 +30,13 @@ struct __attribute__ ((__packed__)) msg {
 };
 
 struct uart {
-    lwrb_t        lwrb_msg;
-    uint8_t       buff_data[8];
+    lwrb_t        lwrb;
+    uint8_t       buff[8];
+
+    uint8_t       keyboard;
+    uint8_t       console_input;
 
     struct msg    msg;
-    uint8_t       keyboard_input;
     volatile bool flag;
 };
 

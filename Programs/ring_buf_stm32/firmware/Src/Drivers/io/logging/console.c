@@ -71,7 +71,7 @@ void console_print(microrl_t *microrl_ptr, const char *str)
 
 char console_get_char(void)
 {
-   return (char)data_uart.keyboard_input;
+   return (char)data_uart.console_input;
 }
 
 #if MICRORL_CFG_USE_ECHO_OFF

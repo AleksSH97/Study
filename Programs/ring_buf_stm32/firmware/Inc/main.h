@@ -44,6 +44,7 @@ extern "C" {
 #include "lwprintf/lwprintf.h"
 #include "console.h"
 #include "lwrb.h"
+#include "ring_buf.h"
 
 #if defined(USE_FULL_ASSERT)
 #include "stm32_assert.h"

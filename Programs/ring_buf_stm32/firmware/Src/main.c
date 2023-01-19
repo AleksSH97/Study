@@ -30,9 +30,8 @@ int main(void)
     initialize_button();
 
     uart_all_init();
-    uart_setup_receive_char(&huart3, &data_uart.keyboard_input);
-
     ring_buf_init();
+    uart_setup_receive_char(&huart3, &data_uart.keyboard);
 
     log_init();
     console_init();
@@ -40,9 +39,10 @@ int main(void)
     log_printf_crlf("Welcome to STM32F407 Discovery firmware with ring buffer");
 
     for(;;) {
-        if (data_uart.flag) {
-            console_insert_char(data_uart.keyboard_input);
-            data_uart.flag = false;
+
+        if (lwrb_get_full(&data_uart.lwrb) != 0) {
+            lwrb_read(&data_uart.lwrb, &data_uart.console_input, sizeof(char));
+            console_insert_char(data_uart.console_input);
         }
     }
 }
