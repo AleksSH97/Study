@@ -16,6 +16,11 @@
 #define _CMD_CLEAR                  "clear"
 #define _CMD_LOGIN                  "login"
 #define _CMD_LOGOUT                 "logout"
+
+#define _CMD_BUFF                   "buff"
+#define _CMD_RESET                  "reset"
+#define _CMD_FREE                   "free"
+#define _CMD_EXIT                   "exit"
 /* Arguments for set/clear */
 #define _SCMD_RD                    "?"
 #define _SCMD_SAVE                  "save"
@@ -93,6 +98,10 @@ int console_execute(microrl_t *microrl_ptr, int argc, const char * const *argv) 
             console_print(microrl_ptr, "\tLogged out" _ENDLINE_SEQ);
             microrl_set_execute_callback(microrl_ptr, console_execute);
         }
+        else if (strcmp(argv[i], _CMD_BUFF) == 0) {
+            console_print(microrl_ptr, "\tChoose your action with buffer: " _ENDLINE_SEQ);
+            microrl_set_execute_callback(microrl_ptr, console_buff);
+        }
         else {
             console_print(microrl_ptr, "command: '");
             console_print(microrl_ptr, (char*)argv[i]);
@@ -148,6 +157,34 @@ int console_execute(microrl_t *microrl_ptr, int argc, const char * const *argv)
             console_print(microrl_ptr, "\tlogin YOUR_LOGIN"_ENDLINE_SEQ);
             indication_led_error();
             return 1;
+        }
+        i++;
+    }
+
+    return 0;
+}
+
+int console_buff(microrl_t *microrl_ptr, int argc, const char * const *argv)
+{
+    int i = 0;
+
+    while (i < argc) {
+        if (strcmp(argv[i], _CMD_RESET) == 0) {
+            lwrb_reset(&debug_uart.lwrb);
+            console_print(microrl_ptr, "\tBuffer successfully reseted" _ENDLINE_SEQ);
+        }
+        else if (strcmp(argv[i], _CMD_FREE) == 0) {
+            lwrb_free(&debug_uart.lwrb);
+            console_print(microrl_ptr, "\tBuffer successfully free" _ENDLINE_SEQ);
+        }
+        else if (strcmp(argv[i], _CMD_EXIT) == 0) {
+            console_print(microrl_ptr, "\tBack to main menu" _ENDLINE_SEQ);
+            microrl_set_execute_callback(microrl_ptr, console_execute_main);
+        }
+        else {
+            console_print(microrl_ptr, "\tUndefined command" _ENDLINE_SEQ);
+            indication_led_error();
+            console_print_buff(microrl_ptr);
         }
         i++;
     }
@@ -218,7 +255,6 @@ void console_print_help(microrl_t *microrl_ptr)
 #if MICRORL_CFG_USE_ECHO_OFF
     if (!logged_in) {
         console_print(microrl_ptr, "\tlogin YOUR_LOGIN      - 'admin' in this example"_ENDLINE_SEQ);
-//        console_print(microrl_ptr, "If login is correct, you will be asked to enter password."_ENDLINE_SEQ);
     }
 #endif /* MICRORL_CFG_USE_ECHO_OFF */
 
@@ -229,6 +265,14 @@ void console_print_help(microrl_t *microrl_ptr)
 #if MICRORL_CFG_USE_COMPLETE
     console_print(microrl_ptr, "Use TAB key for completion"_ENDLINE_SEQ);
 #endif /* MICRORL_CFG_USE_COMPLETE */
+}
+
+void console_print_buff(microrl_t *microrl_ptr)
+{
+    console_print(microrl_ptr, "List of buff commands:"_ENDLINE_SEQ);
+    console_print(microrl_ptr, "\treset               - reset buffer"_ENDLINE_SEQ);
+    console_print(microrl_ptr, "\tfree                - free buff memory"_ENDLINE_SEQ);
+    console_print(microrl_ptr, "\texit                - back to main menu"_ENDLINE_SEQ _ENDLINE_SEQ);
 }
 
 void console_get_version(char* ver_str)

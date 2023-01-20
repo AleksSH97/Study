@@ -39,7 +39,6 @@ int main(void)
     log_printf_crlf("Welcome to STM32F407 Discovery firmware with ring buffer");
 
     for(;;) {
-
         if (lwrb_get_full(&data_uart.lwrb) != 0) {
             lwrb_read(&data_uart.lwrb, &data_uart.console_input, sizeof(char));
             console_insert_char(data_uart.console_input);
