@@ -23,6 +23,8 @@ extern struct uart debug_uart;
 extern struct uart data_uart;
 extern struct msg msg;
 
+#define UART_BUFF_SIZE    8u
+
 struct __attribute__ ((__packed__)) msg {
     uint8_t start_byte;
     uint8_t payload;
@@ -31,7 +33,7 @@ struct __attribute__ ((__packed__)) msg {
 
 struct uart {
     lwrb_t        lwrb;
-    uint8_t       buff[8];
+    uint8_t       buff[UART_BUFF_SIZE];
 
     uint8_t       keyboard;
     uint8_t       console_input;

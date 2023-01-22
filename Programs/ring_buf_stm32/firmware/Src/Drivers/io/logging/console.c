@@ -20,12 +20,13 @@
 #define _CMD_BUFF                   "buff"
 #define _CMD_RESET                  "reset"
 #define _CMD_FREE                   "free"
+#define _CMD_CHECK                  "check"
 #define _CMD_EXIT                   "exit"
 /* Arguments for set/clear */
 #define _SCMD_RD                    "?"
 #define _SCMD_SAVE                  "save"
 
-#define _NUM_OF_CMD                 3
+#define _NUM_OF_CMD                 8
 #define _NUM_OF_SETCLEAR_SCMD       2
 
 #if MICRORL_CFG_USE_ECHO_OFF
@@ -44,7 +45,7 @@ static void console_print(microrl_t *microrl_ptr, const char *str);
 microrl_t microrl;
 microrl_t *microrl_ptr = &microrl;
 
-char *keyword[] = {_CMD_HELP, _CMD_CLEAR, _CMD_LOGIN};    //available  commands
+char *keyword[] = {_CMD_HELP, _CMD_CLEAR, _CMD_LOGIN, _CMD_LOGOUT, _CMD_BUFF, _CMD_RESET, _CMD_FREE, _CMD_EXIT};    //available  commands
 char *read_save_key[] = {_SCMD_RD, _SCMD_SAVE};            // 'read/save' command arguments
 char *compl_word [_NUM_OF_CMD + 1];                        // array for completion
 
@@ -95,11 +96,12 @@ int console_execute(microrl_t *microrl_ptr, int argc, const char * const *argv) 
             console_print(microrl_ptr, "\033[H" _ENDLINE_SEQ);     // ESC seq for move cursor at left-top corner
         }
         else if (strcmp(argv[i], _CMD_LOGOUT) == 0) {
-            console_print(microrl_ptr, "\tLogged out" _ENDLINE_SEQ);
+            console_print(microrl_ptr, "\tBye!" _ENDLINE_SEQ);
             microrl_set_execute_callback(microrl_ptr, console_execute);
         }
         else if (strcmp(argv[i], _CMD_BUFF) == 0) {
             console_print(microrl_ptr, "\tChoose your action with buffer: " _ENDLINE_SEQ);
+            console_print_buff(microrl_ptr);
             microrl_set_execute_callback(microrl_ptr, console_buff);
         }
         else {
@@ -177,8 +179,16 @@ int console_buff(microrl_t *microrl_ptr, int argc, const char * const *argv)
             lwrb_free(&debug_uart.lwrb);
             console_print(microrl_ptr, "\tBuffer successfully free" _ENDLINE_SEQ);
         }
+        else if (strcmp(argv[i], _CMD_CHECK) == 0) {
+            console_print(microrl_ptr, "\tHere's your buffer:  ");
+            for (int i = 0; i < UART_BUFF_SIZE; i++) {
+                log_printf("%d ", data_uart.lwrb.buff[i]);
+            }
+            console_print(microrl_ptr, "\t " _ENDLINE_SEQ);
+        }
         else if (strcmp(argv[i], _CMD_EXIT) == 0) {
-            console_print(microrl_ptr, "\tBack to main menu" _ENDLINE_SEQ);
+            console_print(microrl_ptr, "\tBack to main menu" _ENDLINE_SEQ _ENDLINE_SEQ _ENDLINE_SEQ);
+            console_print_help(microrl_ptr);
             microrl_set_execute_callback(microrl_ptr, console_execute_main);
         }
         else {
@@ -215,7 +225,7 @@ char **console_complete(microrl_t *microrl_ptr, int argc, const char * const *ar
         char *bit = (char *)argv[argc - 1];
 
         for (int i = 0; i < _NUM_OF_CMD; i++) {
-            if (strstr(keyword [i], bit) == keyword [i]) {
+            if (strstr(keyword[i], bit) == keyword[i]) {
                 compl_word[j++] = keyword[i];
             }
         }
@@ -245,7 +255,6 @@ void console_print_help(microrl_t *microrl_ptr)
     char ver_str[6] = {0};
     console_get_version(ver_str);
 
-
     console_print(microrl_ptr, "MicroRL v");
     console_print(microrl_ptr, ver_str);
     console_print(microrl_ptr, " library DEMO v");
@@ -261,9 +270,10 @@ void console_print_help(microrl_t *microrl_ptr)
     console_print(microrl_ptr, "List of commands:"_ENDLINE_SEQ);
     console_print(microrl_ptr, "\tclear               - clear screen"_ENDLINE_SEQ);
     console_print(microrl_ptr, "\tlogout              - end session"_ENDLINE_SEQ);
+    console_print(microrl_ptr, "\tbuff                - buff configuring menu"_ENDLINE_SEQ);
 
 #if MICRORL_CFG_USE_COMPLETE
-    console_print(microrl_ptr, "Use TAB key for completion"_ENDLINE_SEQ);
+    console_print(microrl_ptr, "Use TAB key for completion"_ENDLINE_SEQ _ENDLINE_SEQ);
 #endif /* MICRORL_CFG_USE_COMPLETE */
 }
 
@@ -272,6 +282,7 @@ void console_print_buff(microrl_t *microrl_ptr)
     console_print(microrl_ptr, "List of buff commands:"_ENDLINE_SEQ);
     console_print(microrl_ptr, "\treset               - reset buffer"_ENDLINE_SEQ);
     console_print(microrl_ptr, "\tfree                - free buff memory"_ENDLINE_SEQ);
+    console_print(microrl_ptr, "\tcheck               - check your buff"_ENDLINE_SEQ);
     console_print(microrl_ptr, "\texit                - back to main menu"_ENDLINE_SEQ _ENDLINE_SEQ);
 }
 

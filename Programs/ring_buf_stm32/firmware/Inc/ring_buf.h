@@ -11,8 +11,6 @@
 #include "lwrb.h"
 #include "uart.h"
 
-
-
 void ring_buf_init();
 void ring_buf_write(struct uart *self, const void *data, size_t num_byte_to_write);
 void ring_buf_read(struct uart *self, void *data, size_t num_byte_to_read);
